@@ -91,4 +91,14 @@ ORDER By Prevalence_per_m DESC
 
 --* Question 15 What is the variation of the prevalence per week
 
-
+SELECT Datename(WK,([document_date]))  Week ,SUM([cas_confirmes])/SUM([IHSI_UNFPA_2019])*100   Prevalence_Rate
+into  #j
+FROM [AyitiAnalyticsDB].[dbo].[covid_case] INNER JOIN [AyitiAnalyticsDB].[dbo].[departement] on departement.adm1code=covid_case.adm1code
+GROUP BY Datename(WK,([document_date]))
+SELECT 
+	Week,
+	Prevalence_Rate,(Prevalence_Rate - LAG(Prevalence_Rate,1) OVER (
+		ORDER BY Week))/LAG(Prevalence_Rate,1) OVER (
+		ORDER BY Week)*100 Variation
+	 
+FROM #j
